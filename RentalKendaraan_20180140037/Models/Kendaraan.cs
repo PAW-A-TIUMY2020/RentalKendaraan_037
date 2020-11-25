@@ -15,9 +15,10 @@ namespace RentalKendaraan_20180140037.Models
         public string NoPolisi { get; set; }
         public string NoStnk { get; set; }
         public int? IdJenisKendaraan { get; set; }
-        public string Ketersiadaan { get; set; }
+        public string Ketersediaan { get; set; }
 
         public JenisKendaraan IdJenisKendaraanNavigation { get; set; }
         public ICollection<Peminjaman> Peminjaman { get; set; }
+        public object Ketersiadaan { get; internal set; }
     }
 }

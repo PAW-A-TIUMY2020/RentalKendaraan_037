@@ -19,10 +19,71 @@ namespace RentalKendaraan_20180140037.Controllers
         }
 
         // GET: Kendaraans
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string ktsd, string searchString, string currentFilter, int? pageNumber, string sortOrder)
         {
-            var rental_kendaraanContext = _context.Kendaraan.Include(k => k.IdJenisKendaraanNavigation);
-            return View(await rental_kendaraanContext.ToListAsync());
+            // buat list menyimpan ketersediaan
+            var ktsdList = new List<string>();
+            //query mengambil data
+            var ktsdQuery = from d in _context.Kendaraan orderby d.Ketersediaan select d.Ketersediaan;
+
+            ktsdList.AddRange(ktsdQuery.Distinct());
+
+            //untuk mengambil data view
+            ViewBag.ktsd = new SelectList(ktsdList);
+
+            //panggil db context
+            var menu = from m in _context.Kendaraan.Include(k => k.IdJenisKendaraanNavigation) select m;
+
+            //untuk memilih dropdownlist ketersediaan
+            if (!string.IsNullOrEmpty(ktsd))
+            {
+                menu = menu.Where(x => x.Ketersediaan == ktsd);
+            }
+
+            //untuk search data
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                menu = menu.Where(s => s.NoPolisi.Contains(searchString) || s.NamaKendaraan.Contains(searchString)
+                || s.NoStnk.Contains(searchString));
+            }
+
+            //untuk sorting
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    menu = menu.OrderByDescending(s => s.NamaKendaraan);
+                    break;
+                case "Date":
+                    menu = menu.OrderBy(s => s.Ketersediaan);
+                    break;
+                case "date_desc":
+                    menu = menu.OrderByDescending(s => s.Ketersediaan);
+                    break;
+                default:
+                    menu = menu.OrderBy(s => s.NamaKendaraan);
+                    break;
+            }
+
+            //membuat pagedList
+            ViewData["CurrentSort"] = sortOrder;
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+
+            //definisi jumlah data pada halaman
+            int pageSize = 5;
+
+            return View(await PaginatedList<Kendaraan>.CreateAsync(menu.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         // GET: Kendaraans/Details/5
@@ -51,12 +112,10 @@ namespace RentalKendaraan_20180140037.Controllers
             return View();
         }
 
-        // POST: Kendaraans/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+       
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdKendaraan,NamaKendaraan,NoPolisi,NoStnk,IdJenisKendaraan,Ketersiadaan")] Kendaraan kendaraan)
+        public async Task<IActionResult> Create([Bind("IdKendaraan,NamaKendaraan,NoPolisis,NoStnk,IdJenisKendaraan,Ketersediaan")] Kendaraan kendaraan)
         {
             if (ModelState.IsValid)
             {
@@ -85,12 +144,10 @@ namespace RentalKendaraan_20180140037.Controllers
             return View(kendaraan);
         }
 
-        // POST: Kendaraans/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+       
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IdKendaraan,NamaKendaraan,NoPolisi,NoStnk,IdJenisKendaraan,Ketersiadaan")] Kendaraan kendaraan)
+        public async Task<IActionResult> Edit(int id, [Bind("IdKendaraan,NamaKendaraan,NoPolisis,NoStnk,IdJenisKendaraan,Ketersediaan")] Kendaraan kendaraan)
         {
             if (id != kendaraan.IdKendaraan)
             {
