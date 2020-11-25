@@ -19,10 +19,71 @@ namespace RentalKendaraan_20180140037.Controllers
         }
 
         // GET: Peminjamen
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string ktsd, string searchString, string currentFilter, int? pageNumber, string sortOrder)
         {
-            var rental_kendaraanContext = _context.Peminjaman.Include(p => p.IdCustomerNavigation).Include(p => p.IdJaminanNavigation).Include(p => p.IdKendaraanNavigation).Include(p => p.IdPeminjamanNavigation);
-            return View(await rental_kendaraanContext.ToListAsync());
+            //buat list menyimpan ketersediaan
+            var ktsdList = new List<string>();
+            //Query mengambil data
+            var ktsdQuery = from d in _context.Peminjaman orderby d.IdJaminanNavigation.NamaJaminan.ToString() select d.IdJaminanNavigation.NamaJaminan.ToString();
+
+            ktsdList.AddRange(ktsdQuery.Distinct());
+
+            //untuk menampilkan di view
+            ViewBag.ktsd = new SelectList(ktsdList);
+
+            //panggil db context
+            var menu = from m in _context.Peminjaman.Include(k => k.IdJaminanNavigation) select m;
+
+            //untuk memilih dropdownlist ketersediaan
+            if (!string.IsNullOrEmpty(ktsd))
+            {
+                menu = menu.Where(x => x.IdJaminanNavigation.NamaJaminan.ToString() == ktsd);
+            }
+
+            //untuk search data
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                menu = menu.Where(p => p.IdCustomerNavigation.NamaCustomer.Contains(searchString) || p.IdJaminanNavigation.NamaJaminan.Contains(searchString)
+                || p.IdKendaraanNavigation.NamaKendaraan.Contains(searchString) || p.Biaya.ToString().Contains(searchString) || p.TglPeminjaman.ToString().Contains(searchString));
+            }
+
+            //untuk sorting
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    menu = menu.OrderByDescending(p => p.IdCustomerNavigation.NamaCustomer);
+                    break;
+                case "Date":
+                    menu = menu.OrderBy(p => p.TglPeminjaman);
+                    break;
+                case "date_desc":
+                    menu = menu.OrderByDescending(p => p.TglPeminjaman);
+                    break;
+                default:
+                    menu = menu.OrderBy(p => p.IdCustomerNavigation.NamaCustomer);
+                    break;
+            }
+
+            //membuat pagedList
+            ViewData["CurrentSort"] = sortOrder;
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+
+            //definisi jumlah data pada halaman
+            int pageSize = 5;
+
+            return View(await PaginatedList<Peminjaman>.CreateAsync(menu.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         // GET: Peminjamen/Details/5
@@ -37,7 +98,6 @@ namespace RentalKendaraan_20180140037.Controllers
                 .Include(p => p.IdCustomerNavigation)
                 .Include(p => p.IdJaminanNavigation)
                 .Include(p => p.IdKendaraanNavigation)
-                .Include(p => p.IdPeminjamanNavigation)
                 .FirstOrDefaultAsync(m => m.IdPeminjaman == id);
             if (peminjaman == null)
             {
@@ -53,7 +113,6 @@ namespace RentalKendaraan_20180140037.Controllers
             ViewData["IdCustomer"] = new SelectList(_context.Customer, "IdCustomer", "IdCustomer");
             ViewData["IdJaminan"] = new SelectList(_context.Jaminan, "IdJaminan", "IdJaminan");
             ViewData["IdKendaraan"] = new SelectList(_context.Kendaraan, "IdKendaraan", "IdKendaraan");
-            ViewData["IdPeminjaman"] = new SelectList(_context.Peminjaman, "IdPeminjaman", "IdPeminjaman");
             return View();
         }
 
@@ -73,7 +132,6 @@ namespace RentalKendaraan_20180140037.Controllers
             ViewData["IdCustomer"] = new SelectList(_context.Customer, "IdCustomer", "IdCustomer", peminjaman.IdCustomer);
             ViewData["IdJaminan"] = new SelectList(_context.Jaminan, "IdJaminan", "IdJaminan", peminjaman.IdJaminan);
             ViewData["IdKendaraan"] = new SelectList(_context.Kendaraan, "IdKendaraan", "IdKendaraan", peminjaman.IdKendaraan);
-            ViewData["IdPeminjaman"] = new SelectList(_context.Peminjaman, "IdPeminjaman", "IdPeminjaman", peminjaman.IdPeminjaman);
             return View(peminjaman);
         }
 
@@ -93,7 +151,6 @@ namespace RentalKendaraan_20180140037.Controllers
             ViewData["IdCustomer"] = new SelectList(_context.Customer, "IdCustomer", "IdCustomer", peminjaman.IdCustomer);
             ViewData["IdJaminan"] = new SelectList(_context.Jaminan, "IdJaminan", "IdJaminan", peminjaman.IdJaminan);
             ViewData["IdKendaraan"] = new SelectList(_context.Kendaraan, "IdKendaraan", "IdKendaraan", peminjaman.IdKendaraan);
-            ViewData["IdPeminjaman"] = new SelectList(_context.Peminjaman, "IdPeminjaman", "IdPeminjaman", peminjaman.IdPeminjaman);
             return View(peminjaman);
         }
 
@@ -132,7 +189,6 @@ namespace RentalKendaraan_20180140037.Controllers
             ViewData["IdCustomer"] = new SelectList(_context.Customer, "IdCustomer", "IdCustomer", peminjaman.IdCustomer);
             ViewData["IdJaminan"] = new SelectList(_context.Jaminan, "IdJaminan", "IdJaminan", peminjaman.IdJaminan);
             ViewData["IdKendaraan"] = new SelectList(_context.Kendaraan, "IdKendaraan", "IdKendaraan", peminjaman.IdKendaraan);
-            ViewData["IdPeminjaman"] = new SelectList(_context.Peminjaman, "IdPeminjaman", "IdPeminjaman", peminjaman.IdPeminjaman);
             return View(peminjaman);
         }
 
@@ -148,7 +204,6 @@ namespace RentalKendaraan_20180140037.Controllers
                 .Include(p => p.IdCustomerNavigation)
                 .Include(p => p.IdJaminanNavigation)
                 .Include(p => p.IdKendaraanNavigation)
-                .Include(p => p.IdPeminjamanNavigation)
                 .FirstOrDefaultAsync(m => m.IdPeminjaman == id);
             if (peminjaman == null)
             {

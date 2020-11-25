@@ -19,6 +19,5 @@ namespace RentalKendaraan_20180140037.Models
 
         public JenisKendaraan IdJenisKendaraanNavigation { get; set; }
         public ICollection<Peminjaman> Peminjaman { get; set; }
-        public object Ketersiadaan { get; internal set; }
     }
 }

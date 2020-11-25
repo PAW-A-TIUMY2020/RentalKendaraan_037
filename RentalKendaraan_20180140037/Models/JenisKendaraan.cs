@@ -16,3 +16,4 @@ namespace RentalKendaraan_20180140037.Models
         public ICollection<Kendaraan> Kendaraan { get; set; }
     }
 }
+

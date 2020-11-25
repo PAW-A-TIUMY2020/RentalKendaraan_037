@@ -24,7 +24,6 @@ namespace RentalKendaraan_20180140037.Models
         public virtual DbSet<Peminjaman> Peminjaman { get; set; }
         public virtual DbSet<Pengembalian> Pengembalian { get; set; }
 
-        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -49,12 +48,12 @@ namespace RentalKendaraan_20180140037.Models
 
                 entity.Property(e => e.Nik)
                     .HasColumnName("NIK")
-                    .HasMaxLength(16)
+                    .HasMaxLength(30)
                     .IsUnicode(false);
 
                 entity.Property(e => e.NoHp)
                     .HasColumnName("No_HP")
-                    .HasMaxLength(13)
+                    .HasMaxLength(30)
                     .IsUnicode(false);
 
                 entity.HasOne(d => d.IdGenderNavigation)
@@ -87,7 +86,8 @@ namespace RentalKendaraan_20180140037.Models
 
                 entity.Property(e => e.NamaJaminan)
                     .HasColumnName("Nama_Jaminan")
-                    .HasMaxLength(40);
+                    .HasMaxLength(40)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<JenisKendaraan>(entity =>
@@ -101,7 +101,7 @@ namespace RentalKendaraan_20180140037.Models
                     .ValueGeneratedNever();
 
                 entity.Property(e => e.NamaJenisKendaraan)
-                    .HasColumnName("Nama_Jenis_kendaraan")
+                    .HasColumnName("Nama_Jenis_Kendaraan")
                     .HasMaxLength(30)
                     .IsUnicode(false);
             });
@@ -116,7 +116,7 @@ namespace RentalKendaraan_20180140037.Models
 
                 entity.Property(e => e.IdJenisKendaraan).HasColumnName("ID_Jenis_Kendaraan");
 
-                entity.Property(e => e.Ketersiadaan)
+                entity.Property(e => e.Ketersediaan)
                     .HasMaxLength(15)
                     .IsUnicode(false);
 
@@ -189,12 +189,6 @@ namespace RentalKendaraan_20180140037.Models
                     .WithMany(p => p.Peminjaman)
                     .HasForeignKey(d => d.IdKendaraan)
                     .HasConstraintName("FK_Peminjaman_Kendaraan");
-
-                entity.HasOne(d => d.IdPeminjamanNavigation)
-                    .WithOne(p => p.InverseIdPeminjamanNavigation)
-                    .HasForeignKey<Peminjaman>(d => d.IdPeminjaman)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Peminjaman_Peminjaman");
             });
 
             modelBuilder.Entity<Pengembalian>(entity =>
@@ -217,6 +211,11 @@ namespace RentalKendaraan_20180140037.Models
                     .WithMany(p => p.Pengembalian)
                     .HasForeignKey(d => d.IdKondisi)
                     .HasConstraintName("FK_Pengembalian_Kondisi_Kendaraan");
+
+                entity.HasOne(d => d.IdPeminjamanNavigation)
+                    .WithMany(p => p.Pengembalian)
+                    .HasForeignKey(d => d.IdPeminjaman)
+                    .HasConstraintName("FK_Pengembalian_Peminjaman");
             });
         }
     }

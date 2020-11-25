@@ -11,7 +11,7 @@ namespace RentalKendaraan_20180140037.Models
         }
 
         public int IdJaminan { get; set; }
-        public byte[] NamaJaminan { get; set; }
+        public string NamaJaminan { get; set; }
 
         public ICollection<Peminjaman> Peminjaman { get; set; }
     }

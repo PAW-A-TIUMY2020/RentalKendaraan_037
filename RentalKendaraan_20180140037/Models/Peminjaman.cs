@@ -3,8 +3,14 @@ using System.Collections.Generic;
 
 namespace RentalKendaraan_20180140037.Models
 {
+
     public partial class Peminjaman
     {
+        public Peminjaman()
+        {
+            Pengembalian = new HashSet<Pengembalian>();
+        }
+
         public int IdPeminjaman { get; set; }
         public DateTime? TglPeminjaman { get; set; }
         public int? IdKendaraan { get; set; }
@@ -15,7 +21,6 @@ namespace RentalKendaraan_20180140037.Models
         public Customer IdCustomerNavigation { get; set; }
         public Jaminan IdJaminanNavigation { get; set; }
         public Kendaraan IdKendaraanNavigation { get; set; }
-        public Peminjaman IdPeminjamanNavigation { get; set; }
-        public Peminjaman InverseIdPeminjamanNavigation { get; set; }
+        public ICollection<Pengembalian> Pengembalian { get; set; }
     }
 }

@@ -10,28 +10,30 @@
     <a asp-action="Create">Create New</a>
 </p>
 
-@using (Html.BeginForm("Index", "Kendaraans", FormMethod.Get))
+@using (Html.BeginForm("Index", "Kendaraan", FormMethod.Get))
 {
     <p>
-        Ketersediaan: @Html.DropDownList("ktsd", "Pilih kendaraan")
+        Ketersediaan : @Html.DropDownList("ktsd", "Pilih Ketersediaan")
         Cari Data : @Html.TextBox("searchString")
         <input type="submit" value="Filter" />
     </p>
 }
-
 <table class="table">
     <thead>
         <tr>
+            <th>
+                @Html.DisplayName("Nama Kendaraan")
+            </th>
             <th>
                 <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">
                     Kendaraan
                 </a>
             </th>
             <th>
-                No Polisi
+                @Html.DisplayName("NoPolisis")
             </th>
             <th>
-                No STNK
+                @Html.DisplayName("NoStnk")
             </th>
             <th>
                 <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">
@@ -39,7 +41,7 @@
                 </a>
             </th>
             <th>
-                Jenis Kendaraan
+                @Html.DisplayName("Jenis Kendaraan")
             </th>
             <th></th>
         </tr>
@@ -61,7 +63,7 @@
                     @Html.DisplayFor(modelItem => item.Ketersediaan)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.IdJenisKendaraanNavigation.NamaJenisKendaraan)
+                    @Html.DisplayFor(modelItem => item.IdJenisKendaraanNavigation.IdJenisKendaraan)
                 </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.IdKendaraan">Edit</a> |
@@ -72,7 +74,6 @@
         }
     </tbody>
 </table>
-
 @{
     var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
     var nextDisabled = !Model.HasNextPage ? "disabled" : "";
