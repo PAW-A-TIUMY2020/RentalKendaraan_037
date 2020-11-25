@@ -112,7 +112,9 @@ namespace RentalKendaraan_20180140037.Controllers
             return View();
         }
 
-       
+        // POST: Kendaraans/Create
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdKendaraan,NamaKendaraan,NoPolisis,NoStnk,IdJenisKendaraan,Ketersediaan")] Kendaraan kendaraan)
@@ -144,7 +146,9 @@ namespace RentalKendaraan_20180140037.Controllers
             return View(kendaraan);
         }
 
-       
+        // POST: Kendaraans/Edit/5
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("IdKendaraan,NamaKendaraan,NoPolisis,NoStnk,IdJenisKendaraan,Ketersediaan")] Kendaraan kendaraan)
